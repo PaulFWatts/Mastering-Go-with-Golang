@@ -1,48 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
-	"net/http"
+	"my-first-api/internal/todo"
+	"my-first-api/internal/transport"
 )
-
-type TodoItem struct {
-	Item string `json:"item"`
-}
 
 func main() {
 
-	var todos = make([]string, 0)
+	svc := todo.NewService()
+	server := transport.NewServer(svc)
 
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("GET /todo", func(w http.ResponseWriter, r *http.Request) {
-		b, err := json.Marshal(todos)
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-
-		_, err = w.Write(b)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-
-	})
-
-	mux.HandleFunc("POST /todo", func(w http.ResponseWriter, r *http.Request) {
-		var t TodoItem
-		err := json.NewDecoder(r.Body).Decode(&t)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		todos = append(todos, t.Item)
-		w.WriteHeader(http.StatusCreated)
-	})
-
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := server.Serve(); err != nil {
 		log.Fatal(err)
 	}
 }
