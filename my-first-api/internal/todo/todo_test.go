@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+type 
+
 func TestService_Search(t *testing.T) {
 	tests := []struct {
 		name           string
